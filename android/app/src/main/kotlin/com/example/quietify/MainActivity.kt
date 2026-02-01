@@ -20,20 +20,6 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         
-        // Request notification permission for Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) 
-                != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 
-                    NOTIFICATION_PERMISSION_CODE
-                )
-            } else {
-                startMyForegroundService()
-            }
-        } else {
-            startMyForegroundService()
-        }
         
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
@@ -43,6 +29,19 @@ class MainActivity : FlutterActivity() {
                 "dndPermission" -> {
                     if (hasDndPermission()) {
                         silentMode()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) 
+                                != PackageManager.PERMISSION_GRANTED) {
+                                requestPermissions(
+                                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 
+                                    NOTIFICATION_PERMISSION_CODE
+                                )
+                            } else {
+                                startMyForegroundService()
+                            }
+                        } else {
+                            startMyForegroundService()
+                        }
                         
                         // Get duration from Flutter
                         val hours = call.argument<Int>("hours") ?: 0
